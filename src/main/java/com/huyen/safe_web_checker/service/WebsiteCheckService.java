@@ -47,7 +47,6 @@ public class WebsiteCheckService {
     }
 
     public ScanResult checkWebsite(String url, HttpServletRequest request) {
-        // Lấy thông tin người dùng từ JWT (nếu có)
         String token = getJwtFromRequest(request);
         User user = null;
 
@@ -57,16 +56,10 @@ public class WebsiteCheckService {
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         }
 
-        // Kiểm tra giới hạn quét
         checkScanLimit(user, request);
-
-        // Thực hiện kiểm tra website
         ScanResult result = performWebsiteCheck(url);
-
-        // Lưu lịch sử quét
         saveScanHistory(url, result, user);
 
-        // Cập nhật thông tin người dùng nếu đã đăng nhập
         if (user != null) {
             updateUserScanInfo(user);
         }
@@ -75,7 +68,6 @@ public class WebsiteCheckService {
     }
 
     private ScanResult performWebsiteCheck(String url) {
-        // 1. Kiểm tra trong database malicious_websites
         List<MaliciousWebsite> matchedWebsites = maliciousWebsiteRepository.findSimilarWebsites(url);
 
         if (!matchedWebsites.isEmpty()) {
@@ -84,7 +76,6 @@ public class WebsiteCheckService {
                     matchedWebsites.get(0));
         }
 
-        // 2. Thêm các kiểm tra khác (có thể tích hợp API bên ngoài)
         boolean isMalicious = isUrlMalicious(url);
         int riskScore = calculateRiskScore(url);
         String details = generateScanDetails(url, isMalicious, riskScore);
@@ -96,7 +87,6 @@ public class WebsiteCheckService {
         LocalDateTime last24Hours = LocalDateTime.now().minusHours(24);
 
         if (user == null) {
-            // Kiểm tra giới hạn cho người dùng chưa đăng nhập
             long scansInLast24Hours = scanHistoryRepository.countByUserIsNullAndScanDateAfter(last24Hours);
 
             if (scansInLast24Hours >= maxChecksPerDay) {
@@ -105,8 +95,7 @@ public class WebsiteCheckService {
                                 + " lần kiểm tra mỗi ngày. Vui lòng đăng nhập để tiếp tục.");
             }
         } else {
-            // Kiểm tra giới hạn cho người dùng đã đăng nhập (nếu có)
-            // Hiện tại không giới hạn nhưng có thể thêm logic sau
+
         }
     }
 
@@ -131,12 +120,10 @@ public class WebsiteCheckService {
 
     // Các phương thức hỗ trợ
     private boolean isUrlMalicious(String url) {
-        // Triển khai logic kiểm tra thực tế
         return url.contains("phishing") || url.contains("scam");
     }
 
     private int calculateRiskScore(String url) {
-        // Logic tính điểm rủi ro
         if (url.contains("phishing"))
             return 100;
         if (url.contains("scam"))

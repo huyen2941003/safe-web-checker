@@ -38,7 +38,6 @@ public class MaliciousWebsite {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    // Quan hệ với bảng UserScanHistory
     @OneToMany(mappedBy = "matchedWebsite", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserScanHistory> scanHistories;
 
@@ -51,7 +50,6 @@ public class MaliciousWebsite {
         return "Đã xử lý".equals(this.status);
     }
 
-    // Builder pattern với các giá trị mặc định
     public static class MaliciousWebsiteBuilder {
         private String status = "Đang xử lý";
         private Date detectionDate = new Date();
